@@ -4,12 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import pe.edu.cibetec.patitas_backend.dto.SignOutRequestDTO;
 import pe.edu.cibetec.patitas_backend.dto.LoginRequestDTO;
 import pe.edu.cibetec.patitas_backend.service.AutenticacionService;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 @Service
 public class AutenticacionServiceImpl implements AutenticacionService {
@@ -52,4 +51,30 @@ public class AutenticacionServiceImpl implements AutenticacionService {
         return datosUsuario;
     }
 
+    public String CierreSesion(SignOutRequestDTO signOutRequestDTO) throws IOException {
+        String nombre_documento = "";
+        String codigo = "";
+        switch (signOutRequestDTO.tipoDocumento()) {
+            case "1":
+                nombre_documento = "DNI               ";
+                break;
+            case "2":
+                nombre_documento = "Carnet_Extranjeria";
+                break;
+            default:
+                nombre_documento = "Pasaporte         ";
+        }
+
+        try {
+            BufferedWriter bf = new BufferedWriter(new FileWriter(new File("src/main/resources/cierreSesion.txt"), true));
+            bf.write(nombre_documento + ";" + signOutRequestDTO.numeroDocumento() + "         ;" + signOutRequestDTO.fechaCierre() + "\n");
+            bf.close();
+            codigo = "01";
+        } catch (Exception e) {
+            codigo = null;
+            System.out.println(e.getMessage());
+            throw new IOException(e);
+        }
+        return codigo;
+    }
 }
